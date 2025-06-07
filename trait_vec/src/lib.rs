@@ -46,6 +46,13 @@ impl<T: Clone> Expr<T> for Vector<T> {
 pub struct AddExpr<L, R> {
     left: L,
     right: R,
+
+}
+
+impl<L, R> AddExpr<L, R> {
+    pub fn new(left: L, right: R) -> Self {
+        AddExpr { left, right }
+    }
 }
 
 impl<T, L: Expr<T>, R: Expr<T>> Expr<T> for AddExpr<L, R>
@@ -108,6 +115,13 @@ pub struct SubExpr<L, R> {
     left: L,
     right: R,
 }
+
+impl <L, R> SubExpr<L, R> {
+    pub fn new(left: L, right: R) -> Self {
+        SubExpr { left, right }
+    }
+}
+
 impl<T, L, R> Expr<T> for SubExpr<L, R>
 where
     L: Expr<T>,
@@ -136,5 +150,24 @@ macro_rules! tvec {
             )*
             vec
         }
+    };
+}
+
+#[macro_export]
+macro_rules! vec_expr {
+    ($a:tt) => { $a };
+
+    ($a:tt + $($rest:tt)+) => {
+        AddExpr::new(
+            vec_expr!($a),
+            vec_expr!($($rest)+),
+        )
+    };
+
+    ($a:tt - $($rest:tt)+) => {
+        SubExpr::new(
+            vec_expr!($a),
+            vec_expr!($($rest)+),
+        )
     };
 }
